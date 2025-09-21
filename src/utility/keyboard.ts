@@ -173,12 +173,12 @@ const modifyKeyboard = (dom: HTMLElement) => {
           let clickCallback = (e: GamepadEvent | MouseEvent | TouchEvent) => {
             if (e.type === "vgp_onbuttonup" && (e as GamepadEvent).detail.button !== 1)
               return;
-            b.dataset.key = " ";
             displayNone.forEach((e) => (e as HTMLElement).style = "");
             b.removeEventListener("click", clickCallback);
             b.removeEventListener("touchend", clickCallback);
             // @ts-ignore
             b.removeEventListener("vgp_onbuttonup", clickCallback);
+            setTimeout(() => b.dataset.key = " ", 0); // wait for a little bit to prevent input
           };
           b.addEventListener("click", clickCallback);
           b.addEventListener("touchend", clickCallback);

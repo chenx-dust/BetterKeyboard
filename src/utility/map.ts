@@ -1,5 +1,7 @@
 export const GetPosFromKey = (code: number) => {
-  if (code >= 2 && code <= 14)
+  if (code == 41)       // Backquote
+    return [0, 0];
+  else if (code >= 2 && code <= 14)
     return [0, code - 1];
   else if (code >= 15 && code <= 27)
     return [1, code - 15];
@@ -15,7 +17,7 @@ export const GetPosFromKey = (code: number) => {
     return [3, 0];
   else if (code >= 44 && code <= 54)
     return [3, code - 43];
-  else if (code == 57) // Space
+  else if (code == 57)  // Space
     return [4, 2];
   else
     return null;
