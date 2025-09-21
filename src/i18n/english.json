@@ -1,3 +1,7 @@
 {
-  "TEST": "TEST"
+  "SETTINGS": "Settings",
+  "ENABLE_PLUGIN": "Enable Plugin",
+  "ENABLE_PLUGIN_DESC": "Add support for physical keyboard",
+  "COMPACT_MODE": "Compact Mode",
+  "COMPACT_MODE_DESC": "Make virtual keyboard compact"
 }

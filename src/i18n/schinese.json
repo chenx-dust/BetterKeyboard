@@ -1,3 +1,7 @@
 {
-  "TEST": "TEST"
+  "SETTINGS": "设置",
+  "ENABLE_PLUGIN": "启用插件",
+  "ENABLE_PLUGIN_DESC": "增加对物理键盘的支持",
+  "COMPACT_MODE": "紧凑模式",
+  "COMPACT_MODE_DESC": "让虚拟键盘更紧凑"
 }
