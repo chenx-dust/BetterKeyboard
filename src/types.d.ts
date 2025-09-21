@@ -24,6 +24,14 @@ export interface VirtualKeyboardManager {
 
 export interface VirtualKeyboardComponent {
   TypeKeyInternal: (e: TypeKeyEvent) => void;
+  setState: (c: (e: VirtualKeyboardComponent, t: any) => VirtualKeyboardComponent) => void;
+  toggleStates: {
+    Shift: number,
+    CapsLock: number,
+    Control: number,
+    Alt: number,
+    AltGr: number,
+  }
 }
 
 export interface WindowInstance {
