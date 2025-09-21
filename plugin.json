@@ -1,0 +1,11 @@
+{
+  "name": "BetterKeyboard",
+  "author": "Chenx Dust",
+  "flags": ["root"],
+  "api_version": 1,
+  "publish": {
+    "tags": ["utility", "keyboard"],
+    "description": "Better experience for physical keyboard users.",
+    "image": "https://github.com/chenx-dust/BetterKeyboard/raw/refs/heads/main/logo.png"
+  }
+}
