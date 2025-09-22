@@ -1,8 +1,8 @@
 # Better Keyboard
 
-Add support for physical keyboard to the virtual keyboard overlay, to utilize built-in IME, Emoji panel, etc. It can also makes virtual keyboard more compact for easier use for physical keyboard users.
+Add support for physical keyboard to the virtual keyboard overlay, to utilize built-in IME, Emoji panel, etc. It can also hides full keyboard in virtual keyboard for easier use for physical keyboard users.
 
-给虚拟键盘添加物理键盘支持，便于使用内置的IME、Emoji面板等。还增加了紧凑模式，便于使用物理键盘。
+给虚拟键盘添加物理键盘支持，便于使用内置的IME、Emoji面板等。还增加了紧凑模式，隐藏了虚拟键盘中的全键盘，便于使用物理键盘。
 
 ![Screenshot](logo.jpg)
 
@@ -22,13 +22,15 @@ Download the latest release from [Releases](https://github.com/chenx-dust/Better
 
 ## Tips & Tricks 技巧提示
 
-- You can click the `Space` virtual key to leave compact mode temporarily.
-- You can use `Space` and number keys to accept IME candidates.
-- You can short press `LeftShift` key to switch between input methods.
+- You can click the **Space** virtual key to leave compact mode temporarily.
+- You can use **Space** and number keys to accept IME candidates.
+- You can short press **LeftShift** key to switch between input methods.
+- You can press **Escape** key to leave the virtual keyboard.
 
-- 可以通过点击 `空格` 键临时退出 `compact mode` 。
-- 可以通过 `空格` 和数字键接受输入法候选项。
-- 可以通过按住 `左 Shift` 键切换输入法。
+- 可以通过点击 **空格** 键临时退出紧凑模式。
+- 可以通过 **空格** 和数字键接受输入法候选项。
+- 可以通过按住 **左 Shift** 键切换输入法。
+- 可以通过按 **Esc** 键退出虚拟键盘。
 
 ## How it Work 工作原理
 
