@@ -1,6 +1,6 @@
 {
   "name": "better-keyboard",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Better experience for physical keyboard users",
   "type": "module",
   "scripts": {
@@ -21,7 +21,7 @@
     "keyboard"
   ],
   "author": "Chenx Dust <chenx_dust@outlook.com>",
-  "license": "BSD-3-Clause",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/chenx-dust/BetterKeyboard/issues"
   },
