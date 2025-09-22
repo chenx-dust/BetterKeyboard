@@ -17,6 +17,7 @@ export class VirtualKeyboardContext {
   component: VirtualKeyboardComponent | null = null;
   dom: HTMLElement | null = null;
   compact: boolean = false;
+  disabled: boolean = false;
   rawListener: ((c: number, v: number) => void) | null = null;
 }
 
@@ -191,6 +192,8 @@ const modifyKeyboard = (dom: HTMLElement) => {
 }
 
 const setKeyboardVisibleReplace = (ctx: VirtualKeyboardContext) => () => {
+  if (ctx.disabled)
+    return;
   if (ctx.manager?.SetVirtualKeyboardVisible_)
     ctx.manager.SetVirtualKeyboardVisible_();
 

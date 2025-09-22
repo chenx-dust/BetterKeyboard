@@ -1,7 +1,9 @@
 {
   "SETTINGS": "Settings",
   "ENABLE_PLUGIN": "Enable Plugin",
-  "ENABLE_PLUGIN_DESC": "Add support for physical keyboard",
+  "ENABLE_PLUGIN_DESC": "Enable support for physical keyboard and other tuning",
   "COMPACT_MODE": "Compact Mode",
-  "COMPACT_MODE_DESC": "Make virtual keyboard compact"
+  "COMPACT_MODE_DESC": "Hide full keyboard from virtual keyboard",
+  "DISABLE_VK": "Disable Virtual Keyboard",
+  "DISABLE_VK_DESC": "Make virtual keyboard never pop up"
 }

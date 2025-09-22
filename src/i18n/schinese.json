@@ -1,7 +1,9 @@
 {
   "SETTINGS": "设置",
   "ENABLE_PLUGIN": "启用插件",
-  "ENABLE_PLUGIN_DESC": "增加对物理键盘的支持",
+  "ENABLE_PLUGIN_DESC": "启用对物理键盘的支持和其他调整",
   "COMPACT_MODE": "紧凑模式",
-  "COMPACT_MODE_DESC": "让虚拟键盘更紧凑"
+  "COMPACT_MODE_DESC": "隐藏虚拟键盘中的全键盘",
+  "DISABLE_VK": "禁用虚拟键盘",
+  "DISABLE_VK_DESC": "让虚拟键盘不再弹出"
 }

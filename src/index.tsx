@@ -17,7 +17,8 @@ let ctx = new VirtualKeyboardContext();
 
 function Content() {
   const [enabledReplace, setEnabledReplace] = useState(localStorage.getItem("bk.enabled_replace") === "true");
-  const [enabledCompact, setEnabledCompact] = useState(localStorage.getItem("bk.enabled_compact") === "true");
+  const [enabledCompact, setEnabledCompact] = useState(localStorage.getItem("bk.enabled_compact") !== "false");
+  const [disabledVK, setDisabledVK] = useState(localStorage.getItem("bk.disabled_vk") === "true");
 
   useEffect(() => {
     if (enabledReplace) {
@@ -33,8 +34,13 @@ function Content() {
     localStorage.setItem("bk.enabled_compact", enabledCompact.toString());
   }, [enabledCompact]);
 
-  return (
-    <PanelSection title={t(L.SETTINGS)}>
+  useEffect(() => {
+    ctx.disabled = disabledVK;
+    localStorage.setItem("bk.disabled_vk", disabledVK.toString());
+  }, [disabledVK]);
+
+  return <>
+    <PanelSection>
       <PanelSectionRow>
         <ToggleField
           label={t(L.ENABLE_PLUGIN)}
@@ -43,23 +49,36 @@ function Content() {
           onChange={setEnabledReplace}
         />
       </PanelSectionRow>
-      <PanelSectionRow>
-        <ToggleField
-          label={t(L.COMPACT_MODE)}
-          description={t(L.COMPACT_MODE_DESC)}
-          checked={enabledCompact}
-          onChange={setEnabledCompact}
-        />
-      </PanelSectionRow>
     </PanelSection>
-  );
+    {enabledReplace && (
+      <PanelSection title={t(L.SETTINGS)}>
+        <PanelSectionRow>
+          <ToggleField
+            label={t(L.COMPACT_MODE)}
+            description={t(L.COMPACT_MODE_DESC)}
+            checked={enabledCompact}
+            onChange={setEnabledCompact}
+          />
+        </PanelSectionRow>
+        <PanelSectionRow>
+          <ToggleField
+            label={t(L.DISABLE_VK)}
+            description={t(L.DISABLE_VK_DESC)}
+            checked={disabledVK}
+            onChange={setDisabledVK}
+          />
+        </PanelSectionRow>
+      </PanelSection>
+    )}
+  </>;
 };
 
 export default definePlugin(() => {
   localizationManager.init();
 
   InitContext(ctx);
-  ctx.compact = localStorage.getItem("bk.enabled_compact") === "true"
+  ctx.compact = localStorage.getItem("bk.enabled_compact") !== "false"
+  ctx.disabled = localStorage.getItem("bk.disabled_vk") === "true"
   if (localStorage.getItem("bk.enabled_replace") === "true")
     ReplaceShowKeyboard(ctx);
 
