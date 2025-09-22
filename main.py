@@ -6,7 +6,8 @@ import decky
 import asyncio
 import evdev_mod
 
-logger = decky.logger
+from decky import logger
+from settings import SettingsManager
 
 
 class Plugin:
@@ -14,6 +15,15 @@ class Plugin:
     grabbing: bool
 
     async def _main(self):
+        self.settings = SettingsManager(
+            name="config", settings_directory=decky.DECKY_PLUGIN_SETTINGS_DIR
+        )
+        self.blacklist = self.settings.getSetting("blacklist")
+        if not self.blacklist:
+            self.blacklist = [
+                'Valve Software Steam Controller',  # Steam Deck
+            ]
+            self.settings.setSetting("blacklist", self.blacklist)
         self.kb_devs = []
         self.grabbing = False
 
@@ -25,6 +35,14 @@ class Plugin:
         for path in evdev_mod.list_devices():
             try:
                 dev = evdev_mod.InputDevice(path)
+                if dev.name in self.blacklist:
+                    continue
+                if dev.path in self.blacklist:
+                    continue
+                if dev.phys in self.blacklist:
+                    continue
+                if dev.uniq in self.blacklist:
+                    continue
                 caps = dev.capabilities()
                 if evdev_mod.ecodes.EV_KEY not in caps:
                     continue
@@ -34,7 +52,7 @@ class Plugin:
                         key_cnt += 1
                     if key_cnt >= 10:
                         self.kb_devs.append(dev)
-                        logger.info(f"Found keyboard: {dev.name}")
+                        logger.info(f"Found keyboard: {dev.name}, path: {dev.path}, phys: {dev.phys}, uniq: {dev.uniq}")
                         break
             except Exception as e:
                 logger.exception(f"Error opening {path}: {e}")
@@ -44,7 +62,7 @@ class Plugin:
         for ev in evs:
             if ev.type != evdev_mod.ecodes.EV_KEY:
                 continue
-            logger.info(f"Event: {ev.code} {ev.value}")
+            logger.info(f"Event: {evdev_mod.ecodes.KEY[ev.code]} => {ev.value}")
             loop.create_task(decky.emit("keyboard", ev.code, ev.value))
 
     async def grab_keyboards(self):
@@ -53,7 +71,6 @@ class Plugin:
         self.grabbing = True
         logger.info("Grabbing keyboards")
         self.find_keyboards()
-        logger.info("Found keyboards: %s", self.kb_devs)
         to_remove = []
         loop = asyncio.get_event_loop()
         for dev in self.kb_devs:

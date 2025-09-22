@@ -32,6 +32,22 @@ Download the latest release from [Releases](https://github.com/chenx-dust/Better
 - 可以通过按住 **左 Shift** 键切换输入法。
 - 可以通过按 **Esc** 键退出虚拟键盘。
 
+## Config 配置
+
+Config can be found in `~/homebrew/plugins/BetterKeyboard/config.json`.
+
+配置可以在 `~/homebrew/plugins/BetterKeyboard/config.json` 中找到。
+
+```json
+{
+  "blacklist": [...]
+}
+```
+
+- `blacklist`: A list of devices that should not be recognized as physical keyboard (able: name, path, phys or uniq).
+
+- `blacklist`: 不应当被识别为物理键盘的设备黑名单（可以使用名称、路径、物理路径或唯一标识符）。
+
 ## How it Work 工作原理
 
 This plugin uses the step below to work:
