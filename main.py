@@ -28,8 +28,11 @@ class Plugin:
                 caps = dev.capabilities()
                 if evdev_mod.ecodes.EV_KEY not in caps:
                     continue
+                key_cnt = 0
                 for code in caps[evdev_mod.ecodes.EV_KEY]:
                     if code <= 88:
+                        key_cnt += 1
+                    if key_cnt >= 10:
                         self.kb_devs.append(dev)
                         logger.info(f"Found keyboard: {dev.name}")
                         break
