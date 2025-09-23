@@ -6,11 +6,13 @@ import {
 import { Fiber, TypeKeyEvent, VirtualKeyboardComponent, VirtualKeyboardManager } from "../types";
 import { EvdevToKey, GetPosFromKey, KeyToEvdev } from "./map";
 import { GamepadEvent } from "@decky/ui";
-
+import { L } from "../i18n";
+import { t } from 'i18next';
 
 const MAX_FAILURE_COUNT = 10;
 const RETRY_TIMEOUT = 100;
 const SHORT_CLICK_TIMEOUT = 250;
+const SPACE_TIP_TIMEOUT = 2000;
 
 export class VirtualKeyboardContext {
   manager: VirtualKeyboardManager | null = null;
@@ -59,7 +61,7 @@ const getVirtualKeyboardComponent = (dom: Element | null) => {
 let shortClickLeftShift = false;
 const rawKeyboardListener = (ctx: VirtualKeyboardContext) => (code: number, value: number) => {
   console.log("keyboard", EvdevToKey[code as keyof typeof EvdevToKey], value);
-    // Special Keys
+  // Special Keys
   const checkAltGr = () => {
     if (ctx.dom?.querySelector('div[data-key="AltGr"]') === null)
       return;
@@ -177,15 +179,15 @@ const modifyKeyboard = (dom: HTMLElement) => {
     }
     if (row.ariaRowIndex == "5") {
       const space = row.querySelector('div[data-key=" "]') as HTMLElement;
-      const img = space.querySelector("img");
-      if (img) {
-        img.style.display = "none";
-        displayNone.push(img);
-      }
+      const span = space.querySelector("span");
+      if (span)
+        setTimeout(() => span.innerText = t(L.SHOW_FULL_KEYBOARD), SPACE_TIP_TIMEOUT);
       let clickCallback = (e: GamepadEvent | MouseEvent | TouchEvent) => {
         if (e.type === "vgp_onbuttonup" && (e as GamepadEvent).detail.button !== 1)
           return;
         displayNone.forEach((e) => (e as HTMLElement).style = "");
+        if (span)
+          span.innerText = " ";
         space.removeEventListener("click", clickCallback);
         space.removeEventListener("touchend", clickCallback);
         // @ts-ignore
@@ -221,7 +223,6 @@ const setKeyboardVisibleReplace = (ctx: VirtualKeyboardContext) => () => {
       if (ctx.compact)
         modifyKeyboard(dom);
       ctx.component = getVirtualKeyboardComponent(dom);
-      // keyboardHandler(component);
       backendGrabKeyboard();
       if (ctx.rawListener)
         removeEventListener("keyboard", ctx.rawListener);

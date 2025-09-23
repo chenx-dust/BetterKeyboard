@@ -5,5 +5,6 @@
   "COMPACT_MODE": "Compact Mode",
   "COMPACT_MODE_DESC": "Hide full keyboard from virtual keyboard",
   "DISABLE_VK": "Disable Virtual Keyboard",
-  "DISABLE_VK_DESC": "Make virtual keyboard never pop up"
+  "DISABLE_VK_DESC": "Make virtual keyboard never pop up",
+  "SHOW_FULL_KEYBOARD": "Show Full Keyboard"
 }
