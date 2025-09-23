@@ -1,6 +1,6 @@
 {
   "name": "better-keyboard",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Better experience for physical keyboard users",
   "type": "module",
   "scripts": {
