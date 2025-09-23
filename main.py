@@ -21,7 +21,7 @@ class Plugin:
         self.blacklist = self.settings.getSetting("blacklist")
         if not self.blacklist:
             self.blacklist = [
-                'Valve Software Steam Controller',  # Steam Deck
+                "Valve Software Steam Controller",  # Steam Deck
             ]
             self.settings.setSetting("blacklist", self.blacklist)
         self.kb_devs = []

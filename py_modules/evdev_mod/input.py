@@ -119,6 +119,9 @@ MAX_NAME_SIZE = 256
 def _test_bit(bitmask: bytearray, bit: int):
     return bitmask[bit // 8] & (1 << (bit % 8))
 
+def _clean_str(s: bytes):
+    return s.split(b'\0')[0].decode()
+
 def ioctl_devinfo(fd: int) -> Tuple[int, int, int, int, str, str, str]:
     iid = bytearray(InputID.size())
     ioctl(fd, EVIOCGID, iid, True)
@@ -126,19 +129,19 @@ def ioctl_devinfo(fd: int) -> Tuple[int, int, int, int, str, str, str]:
 
     name = bytearray(MAX_NAME_SIZE)
     ioctl(fd, EVIOCGNAME(MAX_NAME_SIZE), name, True)
-    name = name.decode()
+    name = _clean_str(name)
 
     try:
         phys = bytearray(MAX_NAME_SIZE)
         ioctl(fd, EVIOCGPHYS(MAX_NAME_SIZE), phys, True)
-        phys = phys.decode()
+        phys = _clean_str(phys)
     except:
         phys = ""
 
     try:
         uniq = bytearray(MAX_NAME_SIZE)
         ioctl(fd, EVIOCGUNIQ(MAX_NAME_SIZE), uniq)
-        uniq = uniq.decode()
+        uniq = _clean_str(uniq)
     except:
         uniq = ""
 
