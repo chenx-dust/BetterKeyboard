@@ -124,10 +124,10 @@ const rawKeyboardListener = (ctx: VirtualKeyboardContext) => (code: number, valu
   } else if (code == KeyToEvdev.Escape) {
     ev.strKey = "VKClose";
   } else if (code == KeyToEvdev.Space &&
-    ctx.dom?.querySelector('div[data-key="IME_LUT_Select_0"')) {
+    ctx.dom?.querySelector('div[data-key="IME_LUT_Select_0"]')) {
     ev.strKey = "IME_LUT_Select_0";
   } else if (code >= KeyToEvdev.Digit1 && code <= KeyToEvdev.Digit0 &&
-    ctx.dom?.querySelector('div[data-key="IME_LUT_Select_0"')) {
+    ctx.dom?.querySelector('div[data-key="IME_LUT_Select_0"]')) {
     ev.strKey = "IME_LUT_Select_" + (code - KeyToEvdev.Digit1);
   } else if (pos !== null) {
     const key = ctx.dom?.querySelector(`div[data-key-row="${pos[0]}"][data-key-col="${pos[1]}"]`);
@@ -161,32 +161,26 @@ const modifyKeyboard = (dom: HTMLElement) => {
       displayNone.push(row);
     }
     if (row.ariaRowIndex == "5") {
-      Array.from(row.children).forEach((col) => {
-        const b = col.firstElementChild as HTMLElement;
-        if (b.dataset?.key === " ") {
-          b.dataset.key = "";
-          Array.from(b.firstElementChild?.children || []).forEach((c) => {
-            if (c.firstElementChild?.tagName == "IMG") {
-              (c as HTMLElement).style.display = "none";
-              displayNone.push(c);
-            }
-          });
-          let clickCallback = (e: GamepadEvent | MouseEvent | TouchEvent) => {
-            if (e.type === "vgp_onbuttonup" && (e as GamepadEvent).detail.button !== 1)
-              return;
-            displayNone.forEach((e) => (e as HTMLElement).style = "");
-            b.removeEventListener("click", clickCallback);
-            b.removeEventListener("touchend", clickCallback);
-            // @ts-ignore
-            b.removeEventListener("vgp_onbuttonup", clickCallback);
-            setTimeout(() => b.dataset.key = " ", 0); // wait for a little bit to prevent input
-          };
-          b.addEventListener("click", clickCallback);
-          b.addEventListener("touchend", clickCallback);
-          // @ts-ignore
-          b.addEventListener("vgp_onbuttonup", clickCallback);
-        }
-      });
+      const space = row.querySelector('div[data-key=" "]') as HTMLElement;
+      const img = space.querySelector("img");
+      if (img) {
+        img.style.display = "none";
+        displayNone.push(img);
+      }
+      let clickCallback = (e: GamepadEvent | MouseEvent | TouchEvent) => {
+        if (e.type === "vgp_onbuttonup" && (e as GamepadEvent).detail.button !== 1)
+          return;
+        displayNone.forEach((e) => (e as HTMLElement).style = "");
+        space.removeEventListener("click", clickCallback);
+        space.removeEventListener("touchend", clickCallback);
+        // @ts-ignore
+        space.removeEventListener("vgp_onbuttonup", clickCallback);
+        setTimeout(() => space.dataset.key = " ", 0); // wait for a little bit to prevent input
+      };
+      space.addEventListener("click", clickCallback);
+      space.addEventListener("touchend", clickCallback);
+      // @ts-ignore
+      space.addEventListener("vgp_onbuttonup", clickCallback);
     }
   });
 }
