@@ -24,6 +24,8 @@ class Plugin:
                 "Valve Software Steam Controller",  # Steam Deck
             ]
             self.settings.setSetting("blacklist", self.blacklist)
+        if self.settings.getSetting("debug"):
+            logger.setLevel("DEBUG")
         self.kb_devs = []
         self.grabbing = False
 
@@ -53,17 +55,24 @@ class Plugin:
                     if key_cnt >= 10:
                         self.kb_devs.append(dev)
                         logger.info(f"Found keyboard: {dev.name}, path: {dev.path}, phys: {dev.phys}, uniq: {dev.uniq}")
+                        logger.debug(f"Device properties: {dev.input_props()}")
                         break
             except Exception as e:
                 logger.exception(f"Error opening {path}: {e}")
 
     def forward_keyboard_events(self, dev: evdev_mod.InputDevice, loop: asyncio.AbstractEventLoop):
-        evs = dev.read()
-        for ev in evs:
-            if ev.type != evdev_mod.ecodes.EV_KEY:
-                continue
-            logger.info(f"Event: {evdev_mod.ecodes.KEY[ev.code]} => {ev.value}")
-            loop.create_task(decky.emit("keyboard", ev.code, ev.value))
+        try:
+            evs = dev.read()
+            for ev in evs:
+                if ev.type != evdev_mod.ecodes.EV_KEY:
+                    continue
+                logger.info(f"Event: {evdev_mod.ecodes.KEY[ev.code]} => {ev.value}")
+                loop.create_task(decky.emit("keyboard", ev.code, ev.value))
+        except Exception as e:
+            logger.exception(f"Error reading from {dev.name}: {e}")
+            self.kb_devs.remove(dev)
+            loop.remove_reader(dev.fileno())
+            dev.close()
 
     async def grab_keyboards(self):
         if self.grabbing:
