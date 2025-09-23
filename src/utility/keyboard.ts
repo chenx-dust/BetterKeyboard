@@ -214,6 +214,8 @@ const setKeyboardVisibleReplace = (ctx: VirtualKeyboardContext) => () => {
       ctx.component = getVirtualKeyboardComponent(dom);
       // keyboardHandler(component);
       backendGrabKeyboard();
+      if (ctx.rawListener)
+        removeEventListener("keyboard", ctx.rawListener);
       ctx.rawListener = rawKeyboardListener(ctx);
       addEventListener("keyboard", ctx.rawListener);
     }
