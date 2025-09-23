@@ -1,4 +1,4 @@
-export const GetPosFromKey = (code: number) => {
+export const GetPosFromKey = (code: number, hasIntlBackslash: boolean) => {
   if (code == 41)       // Backquote
     return [0, 0];
   else if (code >= 2 && code <= 14)
@@ -15,8 +15,10 @@ export const GetPosFromKey = (code: number) => {
     return [2, 12];
   else if (code == 42)  // ShiftLeft
     return [3, 0];
+  else if (code == 86)
+    return [3, 1];
   else if (code >= 44 && code <= 54)
-    return [3, code - 43];
+    return [3, code - 43 + (hasIntlBackslash ? 1 : 0)];
   else if (code == 57)  // Space
     return [4, 2];
   else

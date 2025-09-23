@@ -58,8 +58,20 @@ const getVirtualKeyboardComponent = (dom: Element | null) => {
 
 let shortClickLeftShift = false;
 const rawKeyboardListener = (ctx: VirtualKeyboardContext) => (code: number, value: number) => {
-  console.log("keyboard", code, value);
+  console.log("keyboard", EvdevToKey[code as keyof typeof EvdevToKey], value);
     // Special Keys
+  const checkAltGr = () => {
+    if (ctx.dom?.querySelector('div[data-key="AltGr"]') === null)
+      return;
+    ctx.component?.setState(((e: VirtualKeyboardComponent, _) => ({
+      ...e,
+      toggleStates: {
+        ...e.toggleStates,
+        AltGr: Math.min(e.toggleStates?.Alt || 0,
+          e.toggleStates?.Control || 0),
+      }
+    })));
+  };
   if (code == KeyToEvdev.ShiftLeft || code == KeyToEvdev.ShiftRight) {
     ctx.component?.setState(((e: VirtualKeyboardComponent, _) => ({
       ...e,
@@ -86,6 +98,7 @@ const rawKeyboardListener = (ctx: VirtualKeyboardContext) => (code: number, valu
         Control: value === 0 ? 0 : 2,
       }
     })));
+    checkAltGr();
     return;
   } else if (code == KeyToEvdev.AltLeft || code == KeyToEvdev.AltRight) {
     ctx.component?.setState(((e: VirtualKeyboardComponent, _) => ({
@@ -95,6 +108,7 @@ const rawKeyboardListener = (ctx: VirtualKeyboardContext) => (code: number, valu
         Alt: value === 0 ? 0 : 2,
       }
     })));
+    checkAltGr();
     return;
   } else if (code == KeyToEvdev.CapsLock && value === 1) {
     ctx.component?.setState(((e: VirtualKeyboardComponent, _) => ({
@@ -111,7 +125,8 @@ const rawKeyboardListener = (ctx: VirtualKeyboardContext) => (code: number, valu
     strKey: "",
     strKeycode: "",
   };
-  const pos = GetPosFromKey(code);
+  const hasIntlBackslash = ctx.dom?.querySelector(`div[data-key-row="3"][data-key-col="12"]`) !== null;
+  const pos = GetPosFromKey(code, hasIntlBackslash);
   if (value == 0) {
     if (code == KeyToEvdev.ShiftLeft && shortClickLeftShift)
       ev.strKey = "SwitchKeys_Layout";
