@@ -91,5 +91,8 @@ export default definePlugin(() => {
     content: <Content />,
     // The icon displayed in the plugin list
     icon: <FaKeyboard />,
+    onDismount() {
+      RestoreShowKeyboard(ctx);
+    },
   };
 });
