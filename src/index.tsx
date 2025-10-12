@@ -1,4 +1,5 @@
 import {
+  EUIMode,
   PanelSection,
   PanelSectionRow,
   staticClasses,
@@ -14,6 +15,22 @@ import { t } from 'i18next';
 import { InitContext, ReplaceShowKeyboard, RestoreShowKeyboard, VirtualKeyboardContext } from "./utility/keyboard";
 
 let ctx = new VirtualKeyboardContext();
+
+const replaceInGamepadMode = (mode: EUIMode) => {
+  if (mode !== EUIMode.GamePad)
+    return;
+  console.log("[VirtualKeyboard] GamePad mode detected, ready for replacing.")
+  replaceProcess();
+  // make sure to replace after reload
+  setTimeout(replaceProcess, 1);
+  setTimeout(replaceProcess, 5);
+}
+
+const replaceProcess = () => {
+  if (localStorage.getItem("bk.enabled_replace") === "true")
+    ReplaceShowKeyboard(ctx);
+}
+
 
 function Content() {
   const [enabledReplace, setEnabledReplace] = useState(localStorage.getItem("bk.enabled_replace") === "true");
@@ -79,8 +96,8 @@ export default definePlugin(() => {
   InitContext(ctx);
   ctx.compact = localStorage.getItem("bk.enabled_compact") !== "false"
   ctx.disabled = localStorage.getItem("bk.disabled_vk") === "true"
-  if (localStorage.getItem("bk.enabled_replace") === "true")
-    ReplaceShowKeyboard(ctx);
+  window.SteamClient.UI.GetUIMode().then(replaceInGamepadMode);
+  const uiModeChanged = window.SteamClient.UI.RegisterForUIModeChanged(replaceInGamepadMode);
 
   return {
     // The name shown in various decky menus
@@ -93,6 +110,7 @@ export default definePlugin(() => {
     icon: <FaKeyboard />,
     onDismount() {
       RestoreShowKeyboard(ctx);
+      uiModeChanged.unregister();
     },
   };
 });

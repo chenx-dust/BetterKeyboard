@@ -212,7 +212,7 @@ const setKeyboardVisibleReplace = (ctx: VirtualKeyboardContext) => () => {
 
   const tryGetDOM = (failCnt: number) => {
     if (failCnt >= MAX_FAILURE_COUNT) {
-      console.error("Failed to get keyboard DOM");
+      console.error("[VirtualKeyboard] Failed to get keyboard DOM");
       return;
     }
     const dom = getVirtualKeyboardDOM();
@@ -245,7 +245,13 @@ const setKeyboardHiddenReplace = (ctx: VirtualKeyboardContext) => () => {
 }
 
 export const ReplaceShowKeyboard = (ctx: VirtualKeyboardContext) => {
-  if (!ctx.manager) return;
+  if (!ctx.manager) {
+    console.error("[VirtualKeyboard] VirtualKeyboardManager not found!");
+    return;
+  }
+
+  console.log("[VirtualKeyboard] ReplaceShowKeyboard");
+
   if (!ctx.manager.SetVirtualKeyboardVisible_) {
     ctx.manager.SetVirtualKeyboardVisible_ = ctx.manager.SetVirtualKeyboardVisible;
     ctx.manager.SetVirtualKeyboardVisible = setKeyboardVisibleReplace(ctx);
@@ -256,7 +262,13 @@ export const ReplaceShowKeyboard = (ctx: VirtualKeyboardContext) => {
   }
 };
 export const RestoreShowKeyboard = (ctx: VirtualKeyboardContext) => {
-  if (!ctx.manager) return;
+  if (!ctx.manager) {
+    console.error("[VirtualKeyboard] VirtualKeyboardManager not found!");
+    return;
+  }
+
+  console.log("[VirtualKeyboard] RestoreShowKeyboard");
+
   if (ctx.manager.SetVirtualKeyboardVisible_) {
     ctx.manager.SetVirtualKeyboardVisible = ctx.manager.SetVirtualKeyboardVisible_;
     ctx.manager.SetVirtualKeyboardVisible_ = undefined;
