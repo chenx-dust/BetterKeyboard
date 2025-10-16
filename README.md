@@ -60,7 +60,7 @@ This plugin uses the step below to work:
 
 ## License
 
-Copyright (c) 2025 Chenx Dust. This project is licensed under the MIT license.
+Copyright (c) 2025 Chenx Dust. This project is licensed under the BSD 3-Clause license.
 
 ## Acknowledgement
 
