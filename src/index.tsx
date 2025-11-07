@@ -12,7 +12,7 @@ import { useState, useEffect } from "react";
 import { FaKeyboard } from "react-icons/fa";
 import { localizationManager, L } from "./i18n";
 import { t } from 'i18next';
-import { InitContext, ReplaceShowKeyboard, RestoreShowKeyboard, VirtualKeyboardContext } from "./utility/keyboard";
+import { ReplaceShowKeyboard, RestoreShowKeyboard, VirtualKeyboardContext } from "./utility/keyboard";
 
 let ctx = new VirtualKeyboardContext();
 
@@ -20,15 +20,11 @@ const replaceInGamepadMode = (mode: EUIMode) => {
   if (mode !== EUIMode.GamePad)
     return;
   console.log("[VirtualKeyboard] GamePad mode detected, ready for replacing.")
+  const replaceProcess = () => ReplaceShowKeyboard(ctx);
   replaceProcess();
   // make sure to replace after reload
   setTimeout(replaceProcess, 1);
   setTimeout(replaceProcess, 5);
-}
-
-const replaceProcess = () => {
-  if (localStorage.getItem("bk.enabled_replace") === "true")
-    ReplaceShowKeyboard(ctx);
 }
 
 
@@ -93,9 +89,6 @@ function Content() {
 export default definePlugin(() => {
   localizationManager.init();
 
-  InitContext(ctx);
-  ctx.compact = localStorage.getItem("bk.enabled_compact") !== "false"
-  ctx.disabled = localStorage.getItem("bk.disabled_vk") === "true"
   window.SteamClient.UI.GetUIMode().then(replaceInGamepadMode);
   const uiModeChanged = window.SteamClient.UI.RegisterForUIModeChanged(replaceInGamepadMode);
 

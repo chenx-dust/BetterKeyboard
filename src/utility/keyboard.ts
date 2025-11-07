@@ -29,10 +29,6 @@ const backendUngrabKeyboard = callable<[], void>("ungrab_keyboards");
 const getActiveWindow = () => window.SteamUIStore.ActiveWindowInstance;
 const getVirtualKeyboardDOM = () => getActiveWindow().BrowserWindow.document?.getElementById('virtual keyboard');
 
-export const InitContext = (ctx: VirtualKeyboardContext) => {
-  ctx.manager = getActiveWindow().VirtualKeyboardManager;
-};
-
 // const getVirtualKeyboardDOM = () => getActiveWindow().BrowserWindow.documenkey?.activeElement;
 const getVirtualKeyboardComponent = (dom: Element | null) => {
   // search for component
@@ -245,6 +241,14 @@ const setKeyboardHiddenReplace = (ctx: VirtualKeyboardContext) => () => {
 }
 
 export const ReplaceShowKeyboard = (ctx: VirtualKeyboardContext) => {
+  ctx.manager = getActiveWindow()?.VirtualKeyboardManager;
+  ctx.compact = localStorage.getItem("bk.enabled_compact") !== "false";
+  ctx.disabled = localStorage.getItem("bk.disabled_vk") === "true";
+  if (localStorage.getItem("bk.enabled_replace") === "true")
+    replaceShowKeyboardImpl(ctx);
+};
+
+const replaceShowKeyboardImpl = (ctx: VirtualKeyboardContext) => {
   if (!ctx.manager) {
     console.error("[VirtualKeyboard] VirtualKeyboardManager not found!");
     return;
