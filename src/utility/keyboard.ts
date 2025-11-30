@@ -240,15 +240,13 @@ const setKeyboardHiddenReplace = (ctx: VirtualKeyboardContext) => () => {
     removeEventListener("keyboard", ctx.rawListener);
 }
 
-export const ReplaceShowKeyboard = (ctx: VirtualKeyboardContext) => {
+export const InitKeyboardContext = (ctx: VirtualKeyboardContext) => {
   ctx.manager = getActiveWindow()?.VirtualKeyboardManager;
   ctx.compact = localStorage.getItem("bk.enabled_compact") !== "false";
   ctx.disabled = localStorage.getItem("bk.disabled_vk") === "true";
-  if (localStorage.getItem("bk.enabled_replace") === "true")
-    replaceShowKeyboardImpl(ctx);
 };
 
-const replaceShowKeyboardImpl = (ctx: VirtualKeyboardContext) => {
+export const ReplaceShowKeyboard = (ctx: VirtualKeyboardContext) => {
   if (!ctx.manager) {
     console.error("[VirtualKeyboard] VirtualKeyboardManager not found!");
     return;

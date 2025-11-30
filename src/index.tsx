@@ -12,19 +12,23 @@ import { useState, useEffect } from "react";
 import { FaKeyboard } from "react-icons/fa";
 import { localizationManager, L } from "./i18n";
 import { t } from 'i18next';
-import { ReplaceShowKeyboard, RestoreShowKeyboard, VirtualKeyboardContext } from "./utility/keyboard";
+import { InitKeyboardContext, ReplaceShowKeyboard, RestoreShowKeyboard, VirtualKeyboardContext } from "./utility/keyboard";
 
 let ctx = new VirtualKeyboardContext();
 
 const replaceInGamepadMode = (mode: EUIMode) => {
   if (mode !== EUIMode.GamePad)
     return;
-  console.log("[VirtualKeyboard] GamePad mode detected, ready for replacing.")
-  const replaceProcess = () => ReplaceShowKeyboard(ctx);
-  replaceProcess();
-  // make sure to replace after reload
-  setTimeout(replaceProcess, 1);
-  setTimeout(replaceProcess, 5);
+  console.log("[VirtualKeyboard] GamePad mode detected, ready for replacing")
+  InitKeyboardContext(ctx);
+  if (localStorage.getItem("bk.enabled_replace") === "true") {
+    console.log("[VirtualKeyboard] Replacing show keyboard during initialization");
+    const replaceProcess = () => ReplaceShowKeyboard(ctx);
+    replaceProcess();
+    // make sure to replace after reload
+    setTimeout(replaceProcess, 1);
+    setTimeout(replaceProcess, 5);
+  }
 }
 
 
@@ -34,22 +38,22 @@ function Content() {
   const [disabledVK, setDisabledVK] = useState(localStorage.getItem("bk.disabled_vk") === "true");
 
   useEffect(() => {
+    localStorage.setItem("bk.enabled_replace", enabledReplace.toString());
     if (enabledReplace) {
       ReplaceShowKeyboard(ctx);
     } else {
       RestoreShowKeyboard(ctx);
     }
-    localStorage.setItem("bk.enabled_replace", enabledReplace.toString());
   }, [enabledReplace]);
 
   useEffect(() => {
-    ctx.compact = enabledCompact;
     localStorage.setItem("bk.enabled_compact", enabledCompact.toString());
+    ctx.compact = enabledCompact;
   }, [enabledCompact]);
 
   useEffect(() => {
-    ctx.disabled = disabledVK;
     localStorage.setItem("bk.disabled_vk", disabledVK.toString());
+    ctx.disabled = disabledVK;
   }, [disabledVK]);
 
   return <>
