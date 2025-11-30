@@ -128,8 +128,11 @@ export const CompactizeKeyboard = (dom: HTMLElement) => {
       displayNone.push(row);
     }
     if (row.ariaRowIndex == "5") {
-      const space = row.querySelector('div[data-key=" "]') as HTMLElement;
-      const span = space.querySelector("span");
+      const space = row.querySelector<HTMLElement>('div[data-key=" "]');
+      if (!space)
+        return;
+      space.removeAttribute("data-key");
+      const span = space.querySelector<HTMLSpanElement>("span:not([class])");
       if (span)
         setTimeout(() => span.innerText = t(L.SHOW_FULL_KEYBOARD), SPACE_TIP_TIMEOUT);
       let clickCallback = (e: GamepadEvent | MouseEvent | TouchEvent) => {
@@ -142,7 +145,7 @@ export const CompactizeKeyboard = (dom: HTMLElement) => {
         space.removeEventListener("touchend", clickCallback);
         // @ts-ignore
         space.removeEventListener("vgp_onbuttonup", clickCallback);
-        setTimeout(() => space.dataset.key = " ", 0); // wait for a little bit to prevent input
+        setTimeout(() => space.setAttribute("data-key", " "), 0);   // wait for a little bit to prevent input
       };
       space.addEventListener("click", clickCallback);
       space.addEventListener("touchend", clickCallback);
@@ -151,4 +154,3 @@ export const CompactizeKeyboard = (dom: HTMLElement) => {
     }
   });
 }
-
