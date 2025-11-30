@@ -12,7 +12,7 @@ import { useState, useEffect } from "react";
 import { FaKeyboard } from "react-icons/fa";
 import { localizationManager, L } from "./i18n";
 import { t } from 'i18next';
-import { InitKeyboardContext, ReplaceShowKeyboard, RestoreShowKeyboard, VirtualKeyboardContext } from "./utility/keyboard";
+import { VirtualKeyboardContext } from "./utility/context";
 
 let ctx = new VirtualKeyboardContext();
 
@@ -20,10 +20,10 @@ const replaceInGamepadMode = (mode: EUIMode) => {
   if (mode !== EUIMode.GamePad)
     return;
   console.log("[VirtualKeyboard] GamePad mode detected, ready for replacing")
-  InitKeyboardContext(ctx);
+  ctx.init();
   if (localStorage.getItem("bk.enabled_replace") === "true") {
     console.log("[VirtualKeyboard] Replacing show keyboard during initialization");
-    const replaceProcess = () => ReplaceShowKeyboard(ctx);
+    const replaceProcess = () => ctx.replaceShowKeyboard();
     replaceProcess();
     // make sure to replace after reload
     setTimeout(replaceProcess, 1);
@@ -40,9 +40,9 @@ function Content() {
   useEffect(() => {
     localStorage.setItem("bk.enabled_replace", enabledReplace.toString());
     if (enabledReplace) {
-      ReplaceShowKeyboard(ctx);
+      ctx.replaceShowKeyboard();
     } else {
-      RestoreShowKeyboard(ctx);
+      ctx.restoreShowKeyboard();
     }
   }, [enabledReplace]);
 
@@ -106,7 +106,7 @@ export default definePlugin(() => {
     // The icon displayed in the plugin list
     icon: <FaKeyboard />,
     onDismount() {
-      RestoreShowKeyboard(ctx);
+      ctx.restoreShowKeyboard();
       uiModeChanged.unregister();
     },
   };
