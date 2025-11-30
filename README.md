@@ -4,7 +4,7 @@ Add support for physical keyboard to the virtual keyboard overlay, to utilize bu
 
 给虚拟键盘添加物理键盘支持，便于使用内置的IME、Emoji面板等。还增加了紧凑模式，隐藏了虚拟键盘中的全键盘，便于使用物理键盘。
 
-![Screenshot](logo.jpg)
+![Screenshot](logo.png)
 
 **Currently only tested with US English keyboard layout and Chinese (Simplified) IME, more testing is needed.**
 
