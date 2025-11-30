@@ -357,3 +357,11 @@ export const KeyToEvdev = {
   "F24": 194,
   "BrowserSearch": 217,
 }
+
+export const GetDigitFromCode = (code: number) => { 
+  // it's intentionally to let digit0 return 10
+  if (code >= KeyToEvdev.Digit1 && code <= KeyToEvdev.Digit0)
+    return code - KeyToEvdev.Digit1 + 1;
+  else
+    return null;
+}

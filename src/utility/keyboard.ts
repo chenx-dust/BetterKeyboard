@@ -2,7 +2,7 @@ import { GamepadEvent } from "@decky/ui";
 import { t } from 'i18next';
 
 import { TypeKeyEvent, VirtualKeyboardComponent } from "../types";
-import { EvdevToKey, GetPosFromKey, KeyToEvdev } from "./map";
+import { EvdevToKey, GetDigitFromCode, GetPosFromKey, KeyToEvdev } from "./map";
 import { L } from "../i18n";
 import { VirtualKeyboardContext } from "./context";
 
@@ -10,7 +10,7 @@ const SHORT_CLICK_TIMEOUT = 250;
 const SPACE_TIP_TIMEOUT = 2000;
 
 export const CreateRawKeyboardListener = (ctx: VirtualKeyboardContext) => (code: number, value: number) => {
-  console.log("keyboard", EvdevToKey[code as keyof typeof EvdevToKey], value);
+  console.log("[VirtualKeyboard] Keyboard event: ", EvdevToKey[code as keyof typeof EvdevToKey], value);
   // Special Keys
   const checkAltGr = () => {
     if (ctx.dom?.querySelector('div[data-key="AltGr"]') === null)
@@ -85,17 +85,22 @@ export const CreateRawKeyboardListener = (ctx: VirtualKeyboardContext) => (code:
     else
       return;
   } else if (code == KeyToEvdev.Space) {
+    // default to " " because Steam uses it
     ev.strKey = " ";
+    // try to get the key from the selected key panel
+    const selectedKey = ctx.dom?.querySelector('div.Panel.gpfocus')?.getAttribute("data-key");
+    if (selectedKey?.startsWith("IME_LUT_Select_")) {
+      ev.strKey = selectedKey;
+    }
   } else if (code == KeyToEvdev.Delete) {
     ev.strKey = "\x7F";
   } else if (code == KeyToEvdev.Escape) {
     ev.strKey = "VKClose";
-  } else if (code == KeyToEvdev.Space &&
-    ctx.dom?.querySelector('div[data-key="IME_LUT_Select_0"]')) {
-    ev.strKey = "IME_LUT_Select_0";
   } else if (code >= KeyToEvdev.Digit1 && code <= KeyToEvdev.Digit0 &&
-    ctx.dom?.querySelector('div[data-key="IME_LUT_Select_0"]')) {
-    ev.strKey = "IME_LUT_Select_" + (code - KeyToEvdev.Digit1);
+    ctx.dom?.querySelector(`div[data-key="IME_LUT_Select_${GetDigitFromCode(code)}"]`) &&     // check if there is candidate key
+    pos && ctx.dom?.querySelector(`div[data-key-row="${pos[0]}"][data-key-col="${pos[1]}"]`)  // fix Zhuyin, etc. that uses digit key
+      ?.querySelector<HTMLSpanElement>("span:not([class])")?.innerText === GetDigitFromCode(code)!.toString()) {
+    ev.strKey = `IME_LUT_Select_${GetDigitFromCode(code)}`;
   } else if (pos !== null) {
     const key = ctx.dom?.querySelector(`div[data-key-row="${pos[0]}"][data-key-col="${pos[1]}"]`);
     ev = {
