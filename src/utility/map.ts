@@ -359,9 +359,9 @@ export const KeyToEvdev = {
 }
 
 export const GetDigitFromCode = (code: number) => { 
-  // it's intentionally to let digit0 return 10
+  // digit1 => 0, digit2 => 1, ..., digit9 => 8, digit0 => 9
   if (code >= KeyToEvdev.Digit1 && code <= KeyToEvdev.Digit0)
-    return code - KeyToEvdev.Digit1 + 1;
+    return code - KeyToEvdev.Digit1;
   else
     return null;
 }
