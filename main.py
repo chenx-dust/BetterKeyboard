@@ -1,7 +1,7 @@
 import os
 import struct
 import subprocess
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Set
 
 import decky
 import asyncio
@@ -12,6 +12,7 @@ from settings import SettingsManager
 
 
 class Plugin:
+    last_devs: Set[str]
     kb_devs: List[evdev_mod.InputDevice]
     grabbing: bool
 
@@ -29,6 +30,7 @@ class Plugin:
                 "STEAMOS_POWER_BUTTON=1",
             ]
             self.settings.setSetting("blacklist", self.blacklist)
+        self.last_devs = set()
         self.kb_devs = []
         self.grabbing = False
         self.whitelist = []
@@ -37,6 +39,11 @@ class Plugin:
         await self.ungrab_keyboards()
 
     def find_keyboards(self):
+        curr_devs = set(evdev_mod.list_devices())
+        if curr_devs == self.last_devs:
+            logger.debug("No change in devices")
+            return
+        self.last_devs = curr_devs
         self.kb_devs = []
         for path in evdev_mod.list_devices():
             try:
@@ -75,9 +82,9 @@ class Plugin:
                         for prop in props.decode().splitlines():
                             if prop in self.blacklist:
                                 is_banned = True
+                                logger.debug(f"Prop blacklisted for: {prop}")
                                 break
                         if is_banned:
-                            logger.debug(f"Prop blacklisted")
                             continue
                         else:
                             self.whitelist.append(f"{path}-{dev.phys}")
@@ -92,6 +99,8 @@ class Plugin:
         try:
             evs = dev.read()
             for ev in evs:
+                if ev.type not in {evdev_mod.ecodes.EV_KEY, evdev_mod.ecodes.EV_SYN, evdev_mod.ecodes.EV_MSC}:
+                    raise Exception(f"Unexpected event type: {ev.type}, maybe no")
                 if ev.type != evdev_mod.ecodes.EV_KEY:
                     continue
                 logger.debug(f"Event: {evdev_mod.ecodes.KEY[ev.code]} => {ev.value}")
