@@ -25,6 +25,7 @@ export const CreateRawKeyboardListener = (ctx: VirtualKeyboardContext) => (code:
     })));
   };
   if (code == KeyToEvdev.ShiftLeft || code == KeyToEvdev.ShiftRight) {
+    if (value >= 2) return; // ignore auto-repeat
     ctx.component?.setState(((e: VirtualKeyboardComponent, _) => ({
       ...e,
       toggleStates: {
@@ -43,6 +44,7 @@ export const CreateRawKeyboardListener = (ctx: VirtualKeyboardContext) => (code:
       return;
     }
   } else if (code == KeyToEvdev.ControlLeft || code == KeyToEvdev.ControlRight) {
+    if (value >= 2) return; // ignore auto-repeat
     ctx.component?.setState(((e: VirtualKeyboardComponent, _) => ({
       ...e,
       toggleStates: {
@@ -53,6 +55,7 @@ export const CreateRawKeyboardListener = (ctx: VirtualKeyboardContext) => (code:
     checkAltGr();
     return;
   } else if (code == KeyToEvdev.AltLeft || code == KeyToEvdev.AltRight) {
+    if (value >= 2) return; // ignore auto-repeat
     ctx.component?.setState(((e: VirtualKeyboardComponent, _) => ({
       ...e,
       toggleStates: {
