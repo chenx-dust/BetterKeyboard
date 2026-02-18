@@ -26,7 +26,8 @@ class Plugin:
         logger.debug(f"Blacklist: {self.blacklist}")
         if not self.blacklist:
             self.blacklist = [
-                "Valve Software Steam Controller",  # Steam Deck
+                "Valve Software Steam Controller",      # Steam Deck
+                "Valve Software Steam Deck Controller", # Steam Deck OLED
                 "STEAMOS_POWER_BUTTON=1",
             ]
             self.settings.setSetting("blacklist", self.blacklist)
@@ -48,26 +49,28 @@ class Plugin:
         for path in evdev_mod.list_devices():
             try:
                 dev = evdev_mod.InputDevice(path)
-                if dev.name in self.blacklist:
+                if dev.name.strip() in self.blacklist:
                     logger.debug("Name blacklisted")
                     continue
-                if dev.path in self.blacklist:
+                if dev.path.strip() in self.blacklist:
                     logger.debug("Path blacklisted")
                     continue
-                if dev.phys in self.blacklist:
+                if dev.phys.strip() in self.blacklist:
                     logger.debug("Phys blacklisted")
                     continue
-                if dev.uniq in self.blacklist:
+                if dev.uniq.strip() in self.blacklist:
                     logger.debug("Uniq blacklisted")
                     continue
                 caps = dev.capabilities()
-                logger.debug(f"Device capabilities: {caps}")
+                logger.debug(
+                    f"Checking device: {dev.name}, path: {dev.path}, phys: {dev.phys}, uniq: {dev.uniq}, caps: {caps}"
+                )
                 if evdev_mod.ecodes.EV_KEY not in caps:
                     continue
                 key_cnt = 0
                 is_keyboard = False
                 for code in caps[evdev_mod.ecodes.EV_KEY]:
-                    if code <= 88:
+                    if code < evdev_mod.ecodes.KEY_MACRO:
                         key_cnt += 1
                     if key_cnt >= 10:
                         is_keyboard = True
@@ -100,9 +103,11 @@ class Plugin:
             evs = dev.read()
             for ev in evs:
                 if ev.type not in {evdev_mod.ecodes.EV_KEY, evdev_mod.ecodes.EV_SYN, evdev_mod.ecodes.EV_MSC}:
-                    raise Exception(f"Unexpected event type: {ev.type}, maybe no")
+                    raise Exception(f"Unexpected event type: {ev.type}, maybe not a keyboard?")
                 if ev.type != evdev_mod.ecodes.EV_KEY:
                     continue
+                if ev.code not in evdev_mod.ecodes.KEY or ev.code >= evdev_mod.ecodes.KEY_MACRO:
+                    raise Exception(f"Unusual event code: {ev.code}, let it go")
                 logger.debug(f"Event: {evdev_mod.ecodes.KEY[ev.code]} => {ev.value}")
                 loop.create_task(decky.emit("keyboard", ev.code, ev.value))
         except Exception as e:
