@@ -1,12 +1,20 @@
 {
   "SETTINGS": "设置",
+  "ACTIONS": "操作",
   "ENABLE_PLUGIN": "启用插件",
   "ENABLE_PLUGIN_DESC": "启用对物理键盘的支持和其他调整",
   "COMPACT_MODE": "紧凑模式",
-  "COMPACT_MODE_DESC": "隐藏虚拟键盘中的全键盘",
+  "ENABLE_COMPACT_MODE": "启用紧凑模式",
+  "ENABLE_COMPACT_MODE_DESC": "隐藏虚拟键盘中的全键盘",
+  "COMPACT_ONLY_PHYSICAL_KEYBOARD": "仅有物理键盘时启用",
+  "COMPACT_ONLY_PHYSICAL_KEYBOARD_DESC": "未接入物理键盘时不启用紧凑模式",
   "DISABLE_VK": "禁用虚拟键盘",
   "DISABLE_VK_DESC": "让虚拟键盘不再弹出",
   "KEYBOARD_SHORTCUT": "虚拟键盘快捷键",
   "KEYBOARD_SHORTCUT_DESC": "监听 Ctrl+Space 以拉起虚拟键盘",
+  "BLACKLIST_DETECTED_PHYS": "当前无物理键盘",
+  "BLACKLIST_DETECTED_PHYS_DESC": "将当前识别到的所有键盘加入黑名单",
+  "RESET_BLACKLIST_DEFAULT": "恢复默认黑名单",
+  "RESET_BLACKLIST_DEFAULT_DESC": "清空自定义项并恢复内置默认值",
   "SHOW_FULL_KEYBOARD": "显示全键盘"
 }

@@ -14,6 +14,7 @@ export class VirtualKeyboardContext {
   component: VirtualKeyboardComponent | null = null;
   dom: HTMLElement | null = null;
   compact: boolean = false;
+  compactOnlyWithPhysicalKeyboard: boolean = false;
   disabled: boolean = false;
   enableKeyboardShortcut: boolean = false;
   rawListener: ((c: number, v: number) => void) | null = null;
@@ -33,15 +34,28 @@ export class VirtualKeyboardContext {
       const ctx = this;
 
       tryGetDOM((dom: HTMLElement) => {
-        ctx.dom = dom;
-        if (ctx.compact)
-          CompactizeKeyboard(dom);
-        ctx.component = getVirtualKeyboardComponent(dom);
-        Backend.grabKeyboard();
-        if (ctx.rawListener)
-          removeEventListener("keyboard", ctx.rawListener);
-        ctx.rawListener = CreateRawKeyboardListener(ctx);
-        addEventListener("keyboard", ctx.rawListener);
+        (async () => {
+          ctx.dom = dom;
+          ctx.component = getVirtualKeyboardComponent(dom);
+          const hasPhysicalKeyboard = await Backend.findKeyboards();
+          const shouldCompact = ctx.compact && (!ctx.compactOnlyWithPhysicalKeyboard || hasPhysicalKeyboard);
+          if (shouldCompact)
+            CompactizeKeyboard(dom);
+
+          if (ctx.rawListener) {
+            removeEventListener("keyboard", ctx.rawListener);
+            ctx.rawListener = null;
+          }
+
+          if (!hasPhysicalKeyboard) {
+            await Backend.ungrabKeyboard();
+            return;
+          }
+
+          await Backend.grabKeyboard();
+          ctx.rawListener = CreateRawKeyboardListener(ctx);
+          addEventListener("keyboard", ctx.rawListener);
+        })().catch((e) => console.error("[VirtualKeyboard] Failed to initialize keyboard capture", e));
       }, 0);
     };
   }
@@ -61,6 +75,7 @@ export class VirtualKeyboardContext {
 
   init(): void {
     this.compact = localStorage.getItem("bk.enabled_compact") !== "false";
+    this.compactOnlyWithPhysicalKeyboard = localStorage.getItem("bk.compact_only_physical_keyboard") === "true";
     this.disabled = localStorage.getItem("bk.disabled_vk") === "true";
     this.enableKeyboardShortcut = localStorage.getItem("bk.enable_keyboard_shortcut") === "true";
     this.syncKeyboardShortcutListener();

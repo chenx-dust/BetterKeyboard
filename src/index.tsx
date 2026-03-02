@@ -1,4 +1,5 @@
 import {
+  ButtonItem,
   EUIMode,
   PanelSection,
   PanelSectionRow,
@@ -13,6 +14,7 @@ import { FaKeyboard } from "react-icons/fa";
 import { localizationManager, L } from "./i18n";
 import { t } from 'i18next';
 import { VirtualKeyboardContext } from "./utility/context";
+import { Backend } from "./utility/backend";
 
 let ctx = new VirtualKeyboardContext();
 
@@ -34,10 +36,15 @@ const replaceInGamepadMode = (mode: EUIMode) => {
 function Content() {
   const [enabledReplace, setEnabledReplace] = useState(localStorage.getItem("bk.enabled_replace") === "true");
   const [enabledCompact, setEnabledCompact] = useState(localStorage.getItem("bk.enabled_compact") !== "false");
+  const [compactOnlyPhysicalKeyboard, setCompactOnlyPhysicalKeyboard] = useState(
+    localStorage.getItem("bk.compact_only_physical_keyboard") === "true"
+  );
   const [disabledVK, setDisabledVK] = useState(localStorage.getItem("bk.disabled_vk") === "true");
   const [enableKeyboardShortcut, setEnableKeyboardShortcut] = useState(
     localStorage.getItem("bk.enable_keyboard_shortcut") === "true"
   );
+  const [blacklistBusy, setBlacklistBusy] = useState(false);
+  const [resetBlacklistBusy, setResetBlacklistBusy] = useState(false);
 
   useEffect(() => {
     localStorage.setItem("bk.enabled_replace", enabledReplace.toString());
@@ -54,6 +61,11 @@ function Content() {
   }, [enabledCompact]);
 
   useEffect(() => {
+    localStorage.setItem("bk.compact_only_physical_keyboard", compactOnlyPhysicalKeyboard.toString());
+    ctx.compactOnlyWithPhysicalKeyboard = compactOnlyPhysicalKeyboard;
+  }, [compactOnlyPhysicalKeyboard]);
+
+  useEffect(() => {
     localStorage.setItem("bk.disabled_vk", disabledVK.toString());
     ctx.disabled = disabledVK;
   }, [disabledVK]);
@@ -61,6 +73,34 @@ function Content() {
   useEffect(() => {
     ctx.setKeyboardShortcutEnabled(enableKeyboardShortcut);
   }, [enableKeyboardShortcut]);
+
+  const onBlacklistDetectedPhys = async () => {
+    if (blacklistBusy || resetBlacklistBusy)
+      return;
+    try {
+      setBlacklistBusy(true);
+      await Backend.blacklistDetectedKeyboardPhys();
+      console.info("[VirtualKeyboard] Added detected keyboard phys to blacklist");
+    } catch (e) {
+      console.error("[VirtualKeyboard] Failed to add detected phys to blacklist", e);
+    } finally {
+      setBlacklistBusy(false);
+    }
+  };
+
+  const onResetBlacklistDefault = async () => {
+    if (blacklistBusy || resetBlacklistBusy)
+      return;
+    try {
+      setResetBlacklistBusy(true);
+      await Backend.resetBlacklistDefault();
+      console.info("[VirtualKeyboard] Reset blacklist to default");
+    } catch (e) {
+      console.error("[VirtualKeyboard] Failed to reset blacklist", e);
+    } finally {
+      setResetBlacklistBusy(false);
+    }
+  };
 
   return <>
     <PanelSection>
@@ -73,16 +113,26 @@ function Content() {
         />
       </PanelSectionRow>
     </PanelSection>
-    {enabledReplace && (
-      <PanelSection title={t(L.SETTINGS)}>
+    {enabledReplace && <>
+      <PanelSection title={t(L.COMPACT_MODE)}>
         <PanelSectionRow>
           <ToggleField
-            label={t(L.COMPACT_MODE)}
-            description={t(L.COMPACT_MODE_DESC)}
+            label={t(L.ENABLE_COMPACT_MODE)}
+            description={t(L.ENABLE_COMPACT_MODE_DESC)}
             checked={enabledCompact}
             onChange={setEnabledCompact}
           />
         </PanelSectionRow>
+        <PanelSectionRow>
+          <ToggleField
+            label={t(L.COMPACT_ONLY_PHYSICAL_KEYBOARD)}
+            description={t(L.COMPACT_ONLY_PHYSICAL_KEYBOARD_DESC)}
+            checked={compactOnlyPhysicalKeyboard}
+            onChange={setCompactOnlyPhysicalKeyboard}
+          />
+        </PanelSectionRow>
+      </PanelSection>
+      <PanelSection title={t(L.SETTINGS)}>
         <PanelSectionRow>
           <ToggleField
             label={t(L.DISABLE_VK)}
@@ -100,7 +150,31 @@ function Content() {
           />
         </PanelSectionRow>
       </PanelSection>
-    )}
+      <PanelSection title={t(L.ACTIONS)}>
+        <PanelSectionRow>
+          <ButtonItem
+            layout="below"
+            bottomSeparator="none"
+            description={t(L.BLACKLIST_DETECTED_PHYS_DESC)}
+            disabled={blacklistBusy || resetBlacklistBusy}
+            onClick={onBlacklistDetectedPhys}
+          >
+            {t(L.BLACKLIST_DETECTED_PHYS)}
+          </ButtonItem>
+        </PanelSectionRow>
+        <PanelSectionRow>
+          <ButtonItem
+            layout="below"
+            bottomSeparator="none"
+            description={t(L.RESET_BLACKLIST_DEFAULT_DESC)}
+            disabled={blacklistBusy || resetBlacklistBusy}
+            onClick={onResetBlacklistDefault}
+          >
+            {t(L.RESET_BLACKLIST_DEFAULT)}
+          </ButtonItem>
+        </PanelSectionRow>
+      </PanelSection>
+    </>}
   </>;
 };
 

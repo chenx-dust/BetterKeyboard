@@ -12,6 +12,11 @@ from settings import SettingsManager
 
 
 CONFIG_VERSION = 1
+DEFAULT_BLACKLIST = [
+    "Valve Software Steam Controller",  # Steam Deck
+    "Valve Software Steam Deck Controller",  # Steam Deck OLED
+    "steamos-manager",
+]
 
 class Plugin:
     last_devs: Set[str]
@@ -26,11 +31,7 @@ class Plugin:
     async def _migration(self):
         if self.settings.getSetting("version", 0) < CONFIG_VERSION:
             logger.info("Migrating config")
-            self.settings.setSetting("blacklist", [
-                "Valve Software Steam Controller",  # Steam Deck
-                "Valve Software Steam Deck Controller",  # Steam Deck OLED
-                "steamos-manager",
-            ])
+            self.settings.setSetting("blacklist", DEFAULT_BLACKLIST)
             self.settings.setSetting("version", CONFIG_VERSION)
 
     async def _main(self):
@@ -39,7 +40,7 @@ class Plugin:
         else:
             self.settings.setSetting("debug", False)
         self.settings.setSetting("version", CONFIG_VERSION)
-        self.blacklist = self.settings.getSetting("blacklist")
+        self.blacklist = self.settings.getSetting("blacklist", DEFAULT_BLACKLIST)
         logger.info(f"Blacklist: {self.blacklist}")
         self.last_devs = set()
         self.kb_devs = []
@@ -49,7 +50,21 @@ class Plugin:
     async def _unload(self):
         await self.ungrab_keyboards()
 
-    def find_keyboards(self):
+    def _update_blacklist(self, blacklist: List[str]):
+        deduped = []
+        seen = set()
+        for item in blacklist:
+            value = str(item).strip()
+            if value == "" or value in seen:
+                continue
+            deduped.append(value)
+            seen.add(value)
+        self.blacklist = deduped
+        self.last_devs = set()
+        self.settings.setSetting("blacklist", self.blacklist)
+        logger.info(f"Updated blacklist: {self.blacklist}")
+
+    def scan_keyboards(self):
         curr_devs = set(evdev_mod.list_devices())
         if curr_devs == self.last_devs:
             logger.debug("No change in devices")
@@ -108,6 +123,10 @@ class Plugin:
             except Exception as e:
                 logger.exception(f"Error opening {path}: {e}")
 
+    async def find_keyboards(self):
+        self.scan_keyboards()
+        return len(self.kb_devs) > 0
+
     def forward_keyboard_events(self, dev: evdev_mod.InputDevice, loop: asyncio.AbstractEventLoop):
         try:
             evs = dev.read()
@@ -131,7 +150,6 @@ class Plugin:
             return
         self.grabbing = True
         logger.info("Grabbing keyboards")
-        self.find_keyboards()
         to_remove = []
         loop = asyncio.get_event_loop()
         for dev in self.kb_devs:
@@ -157,3 +175,26 @@ class Plugin:
                 logger.debug("Ungrabbed keyboard: %s", dev.name)
             except:
                 logger.error(f"Failed to ungrab keyboard: {dev.name}")
+
+    async def blacklist_detected_keyboard_phys(self):
+        self.scan_keyboards()
+        phys_list = [dev.phys.strip() for dev in self.kb_devs if dev.phys.strip() != ""]
+        if len(phys_list) == 0:
+            logger.info("No detected keyboard phys to add")
+            return
+
+        merged = self.blacklist + phys_list
+        self._update_blacklist(merged)
+
+        if self.grabbing:
+            await self.ungrab_keyboards()
+            await self.find_keyboards()
+            await self.grab_keyboards()
+
+    async def reset_blacklist_default(self):
+        self._update_blacklist(DEFAULT_BLACKLIST)
+
+        if self.grabbing:
+            await self.ungrab_keyboards()
+            await self.find_keyboards()
+            await self.grab_keyboards()

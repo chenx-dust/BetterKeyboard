@@ -1,12 +1,20 @@
 {
   "SETTINGS": "Settings",
+  "ACTIONS": "Actions",
   "ENABLE_PLUGIN": "Enable Plugin",
   "ENABLE_PLUGIN_DESC": "Enable support for physical keyboard and other tuning",
   "COMPACT_MODE": "Compact Mode",
-  "COMPACT_MODE_DESC": "Hide full keyboard from virtual keyboard",
+  "ENABLE_COMPACT_MODE": "Enable Compact Mode",
+  "ENABLE_COMPACT_MODE_DESC": "Hide full keyboard from virtual keyboard",
+  "COMPACT_ONLY_PHYSICAL_KEYBOARD": "Compact Only with Physical Keyboard",
+  "COMPACT_ONLY_PHYSICAL_KEYBOARD_DESC": "Do not enable compact mode when no physical keyboard is connected",
   "DISABLE_VK": "Disable Virtual Keyboard",
   "DISABLE_VK_DESC": "Make virtual keyboard never pop up",
   "KEYBOARD_SHORTCUT": "Virtual Keyboard Shortcut",
   "KEYBOARD_SHORTCUT_DESC": "Listen Ctrl+Space to show virtual keyboard",
+  "BLACKLIST_DETECTED_PHYS": "No Physical Keyboard Now",
+  "BLACKLIST_DETECTED_PHYS_DESC": "Add all currently detected keyboards to blacklist",
+  "RESET_BLACKLIST_DEFAULT": "Reset Blacklist to Default",
+  "RESET_BLACKLIST_DEFAULT_DESC": "Clear custom entries and restore built-in defaults",
   "SHOW_FULL_KEYBOARD": "Show Full Keyboard"
 }
