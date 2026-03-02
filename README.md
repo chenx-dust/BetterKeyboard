@@ -1,6 +1,6 @@
 # Better Keyboard
 
-Add support for physical keyboard to the virtual keyboard overlay, to utilize built-in IME, Emoji panel, etc. It can also hides full keyboard in virtual keyboard for easier use for physical keyboard users.
+Adds physical keyboard support to the virtual keyboard overlay, so you can use built-in IME, the emoji panel, etc. It can also hide the full virtual keyboard for easier use with a physical keyboard.
 
 给虚拟键盘添加物理键盘支持，便于使用内置的IME、Emoji面板等。还增加了紧凑模式，隐藏了虚拟键盘中的全键盘，便于使用物理键盘。
 
@@ -24,12 +24,14 @@ Download the latest release from [Releases](https://github.com/chenx-dust/Better
 
 - You can click the **Space** virtual key to leave compact mode temporarily.
 - You can use **Space** and number keys to accept IME candidates.
+- You can use **PageUp/PageDown**, **[/]** or **-/=** to switch IME candidate pages.
 - You can short press **LeftShift** key to switch between input methods.
 - You can press **Escape** key to leave the virtual keyboard.
 
 - 可以通过点击 **空格** 键临时退出紧凑模式。
 - 可以通过 **空格** 和数字键接受输入法候选项。
-- 可以通过按住 **左 Shift** 键切换输入法。
+- 可以通过 **PageUp/PageDown**、**[/]** 或 **-/=** 翻页输入法候选项。
+- 可以通过短按 **左 Shift** 键切换输入法。
 - 可以通过按 **Esc** 键退出虚拟键盘。
 
 ## Config 配置
@@ -40,17 +42,27 @@ Config can be found in `~/homebrew/plugins/BetterKeyboard/config.json`.
 
 ```json
 {
-  "blacklist": [...]
+  "blacklist": [
+    "Valve Software Steam Controller",
+    "Valve Software Steam Deck Controller",
+    "steamos-manager"
+  ],
+  "debug": false,
+  "version": 1
 }
 ```
 
-- `blacklist`: A list of devices that should not be recognized as physical keyboard (able: name, path, phys or uniq).
+- `blacklist`: A list of devices that should not be recognized as physical keyboards (match by `name`, `path`, `phys`, `uniq`, or `udevadm` property line).
+- `debug`: Enable backend debug logs. Default is `false`.
+- `version`: Internal config schema version used for migration. Do not edit manually.
 
 - `blacklist`: 不应当被识别为物理键盘的设备黑名单（可以使用名称、路径、物理路径或唯一标识符）。
+- `debug`: 是否开启后端调试日志，默认值为 `false`。
+- `version`: 配置迁移使用的内部版本号，不建议手动修改。
 
-## How it Work 工作原理
+## How it Works
 
-This plugin uses the step below to work:
+This plugin works with the steps below:
 
 1. Hijack the virtual keyboard triggers.
 2. Modify the keyboard layout.
@@ -60,8 +72,8 @@ This plugin uses the step below to work:
 
 ## License
 
-Copyright (c) 2025 Chenx Dust. This project is licensed under the BSD 3-Clause license.
+Copyright (c) 2026 Chenx Dust. This project is licensed under the BSD 3-Clause license.
 
 ## Acknowledgement
 
-This plugin is using a modified version of [gvalkov/python-evdev](https://github.com/gvalkov/python-evdev). I've removed all the CPython part and make it work out-of-the-box.
+This plugin uses a modified version of [gvalkov/python-evdev](https://github.com/gvalkov/python-evdev). It removes the CPython-specific parts and works out of the box.

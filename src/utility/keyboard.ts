@@ -104,6 +104,16 @@ export const CreateRawKeyboardListener = (ctx: VirtualKeyboardContext) => (code:
     pos && ctx.dom?.querySelector(`div[data-key-row="${pos[0]}"][data-key-col="${pos[1]}"]`)  // fix Zhuyin, etc. that uses digit key
       ?.querySelector<HTMLSpanElement>("span:not([class])")?.innerText === GetDigitFromCode(code)!.toString()) {
     ev.strKey = `IME_LUT_Select_${GetDigitFromCode(code)}`;
+  } else if ([KeyToEvdev.PageDown, KeyToEvdev.Equal, KeyToEvdev.BracketLeft].includes(code) &&
+    ctx.dom?.querySelector(`div[data-key="IME_LUT_Down"]`) &&     // check if there is candidate key
+    (pos != null ? ctx.dom?.querySelector(`div[data-key-row="${pos[0]}"][data-key-col="${pos[1]}"]`)
+      ?.querySelector<HTMLSpanElement>("span:not([class])")?.innerText === "=" : true)) {     // fix Zhuyin, etc. that uses equal key
+    ev.strKey = "IME_LUT_Down";
+  } else if ([KeyToEvdev.PageUp, KeyToEvdev.Minus, KeyToEvdev.BracketRight].includes(code) &&
+    ctx.dom?.querySelector(`div[data-key="IME_LUT_Up"]`) &&       // check if there is candidate key
+    (pos != null ? ctx.dom?.querySelector(`div[data-key-row="${pos[0]}"][data-key-col="${pos[1]}"]`)
+      ?.querySelector<HTMLSpanElement>("span:not([class])")?.innerText === "-" : true)) {     // fix Zhuyin, etc. that uses minus key
+    ev.strKey = "IME_LUT_Up";
   } else if (pos !== null) {
     const key = ctx.dom?.querySelector(`div[data-key-row="${pos[0]}"][data-key-col="${pos[1]}"]`);
     ev = {
