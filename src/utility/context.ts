@@ -15,8 +15,11 @@ export class VirtualKeyboardContext {
   dom: HTMLElement | null = null;
   compact: boolean = false;
   disabled: boolean = false;
+  enableKeyboardShortcut: boolean = false;
   rawListener: ((c: number, v: number) => void) | null = null;
   shortClickLeftShift: boolean = false;
+  private shortcutListenerRunning: boolean = false;
+  private shortcutKeydownListener: ((e: KeyboardEvent) => void) | null = null;
 
   private setKeyboardVisibleReplace(manager: VirtualKeyboardManager): () => void {
     return () => {
@@ -59,6 +62,57 @@ export class VirtualKeyboardContext {
   init(): void {
     this.compact = localStorage.getItem("bk.enabled_compact") !== "false";
     this.disabled = localStorage.getItem("bk.disabled_vk") === "true";
+    this.enableKeyboardShortcut = localStorage.getItem("bk.enable_keyboard_shortcut") === "true";
+    this.syncKeyboardShortcutListener();
+  }
+
+  setKeyboardShortcutEnabled(enabled: boolean): void {
+    this.enableKeyboardShortcut = enabled;
+    localStorage.setItem("bk.enable_keyboard_shortcut", enabled.toString());
+    this.syncKeyboardShortcutListener();
+  }
+
+  shutdown(): void {
+    if (this.shortcutListenerRunning) {
+      if (this.shortcutKeydownListener)
+        window.removeEventListener("keydown", this.shortcutKeydownListener, true);
+      this.shortcutKeydownListener = null;
+      this.shortcutListenerRunning = false;
+    }
+  }
+
+  private syncKeyboardShortcutListener(): void {
+    if (this.enableKeyboardShortcut && !this.shortcutListenerRunning) {
+      this.shortcutKeydownListener = (e: KeyboardEvent) => {
+        if (!this.enableKeyboardShortcut || this.disabled || e.repeat)
+          return;
+        if (!e.ctrlKey || e.altKey || e.metaKey || e.shiftKey || e.code !== "Space")
+          return;
+        e.preventDefault();
+        e.stopPropagation();
+        this.showVirtualKeyboard();
+      };
+      getActiveWindow()?.BrowserWindow.addEventListener("keydown", this.shortcutKeydownListener, true);
+      this.shortcutListenerRunning = true;
+      return;
+    }
+
+    if (!this.enableKeyboardShortcut && this.shortcutListenerRunning) {
+      if (this.shortcutKeydownListener)
+        getActiveWindow()?.BrowserWindow.removeEventListener("keydown", this.shortcutKeydownListener, true);
+      this.shortcutKeydownListener = null;
+      this.shortcutListenerRunning = false;
+    }
+  }
+
+  private showVirtualKeyboard(): void {
+    const manager = getActiveWindow()?.VirtualKeyboardManager;
+    if (!manager) {
+      console.error("[VirtualKeyboard] VirtualKeyboardManager not found!");
+      return;
+    }
+    console.info("[VirtualKeyboard] Showing virtual keyboard");
+    manager.SetVirtualKeyboardVisible();
   }
 
   replaceShowKeyboard(): void {

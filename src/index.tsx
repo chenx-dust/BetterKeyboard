@@ -20,7 +20,6 @@ const replaceInGamepadMode = (mode: EUIMode) => {
   if (mode !== EUIMode.GamePad)
     return;
   console.log("[VirtualKeyboard] GamePad mode detected, ready for replacing")
-  ctx.init();
   if (localStorage.getItem("bk.enabled_replace") === "true") {
     console.log("[VirtualKeyboard] Replacing show keyboard during initialization");
     const replaceProcess = () => ctx.replaceShowKeyboard();
@@ -36,6 +35,9 @@ function Content() {
   const [enabledReplace, setEnabledReplace] = useState(localStorage.getItem("bk.enabled_replace") === "true");
   const [enabledCompact, setEnabledCompact] = useState(localStorage.getItem("bk.enabled_compact") !== "false");
   const [disabledVK, setDisabledVK] = useState(localStorage.getItem("bk.disabled_vk") === "true");
+  const [enableKeyboardShortcut, setEnableKeyboardShortcut] = useState(
+    localStorage.getItem("bk.enable_keyboard_shortcut") === "true"
+  );
 
   useEffect(() => {
     localStorage.setItem("bk.enabled_replace", enabledReplace.toString());
@@ -55,6 +57,10 @@ function Content() {
     localStorage.setItem("bk.disabled_vk", disabledVK.toString());
     ctx.disabled = disabledVK;
   }, [disabledVK]);
+
+  useEffect(() => {
+    ctx.setKeyboardShortcutEnabled(enableKeyboardShortcut);
+  }, [enableKeyboardShortcut]);
 
   return <>
     <PanelSection>
@@ -85,6 +91,14 @@ function Content() {
             onChange={setDisabledVK}
           />
         </PanelSectionRow>
+        <PanelSectionRow>
+          <ToggleField
+            label={t(L.KEYBOARD_SHORTCUT)}
+            description={t(L.KEYBOARD_SHORTCUT_DESC)}
+            checked={enableKeyboardShortcut}
+            onChange={setEnableKeyboardShortcut}
+          />
+        </PanelSectionRow>
       </PanelSection>
     )}
   </>;
@@ -92,6 +106,7 @@ function Content() {
 
 export default definePlugin(() => {
   localizationManager.init();
+  ctx.init();
 
   window.SteamClient.UI.GetUIMode().then(replaceInGamepadMode);
   const uiModeChanged = window.SteamClient.UI.RegisterForUIModeChanged(replaceInGamepadMode);
@@ -106,6 +121,7 @@ export default definePlugin(() => {
     // The icon displayed in the plugin list
     icon: <FaKeyboard />,
     onDismount() {
+      ctx.shutdown();
       ctx.restoreShowKeyboard();
       uiModeChanged.unregister();
     },

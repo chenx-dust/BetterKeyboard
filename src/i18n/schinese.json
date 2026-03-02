@@ -6,5 +6,7 @@
   "COMPACT_MODE_DESC": "隐藏虚拟键盘中的全键盘",
   "DISABLE_VK": "禁用虚拟键盘",
   "DISABLE_VK_DESC": "让虚拟键盘不再弹出",
+  "KEYBOARD_SHORTCUT": "虚拟键盘快捷键",
+  "KEYBOARD_SHORTCUT_DESC": "监听 Ctrl+Space 以拉起虚拟键盘",
   "SHOW_FULL_KEYBOARD": "显示全键盘"
 }
