@@ -11,7 +11,6 @@ const MAX_FAILURE_COUNT = 10;
 const RETRY_TIMEOUT = 100;
 
 export class VirtualKeyboardContext {
-  manager: VirtualKeyboardManager | null = null;
   component: VirtualKeyboardComponent | null = null;
   dom: HTMLElement | null = null;
   compact: boolean = false;
@@ -19,12 +18,12 @@ export class VirtualKeyboardContext {
   rawListener: ((c: number, v: number) => void) | null = null;
   shortClickLeftShift: boolean = false;
 
-  private setKeyboardVisibleReplace(): () => void {
+  private setKeyboardVisibleReplace(manager: VirtualKeyboardManager): () => void {
     return () => {
       if (this.disabled)
         return;
-      if (this.manager?.SetVirtualKeyboardVisible_)
-        this.manager.SetVirtualKeyboardVisible_();
+      if (manager?.SetVirtualKeyboardVisible_)
+        manager.SetVirtualKeyboardVisible_();
 
       console.log("[VirtualKeyboard] SetVirtualKeyboardVisible");
 
@@ -44,10 +43,10 @@ export class VirtualKeyboardContext {
     };
   }
 
-  private setKeyboardHiddenReplace(): () => void {
+  private setKeyboardHiddenReplace(manager: VirtualKeyboardManager): () => void {
     return () => {
-      if (this.manager?.SetVirtualKeyboardHidden_)
-        this.manager.SetVirtualKeyboardHidden_();
+      if (manager?.SetVirtualKeyboardHidden_)
+        manager.SetVirtualKeyboardHidden_();
 
       console.log("[VirtualKeyboard] SetVirtualKeyboardHidden");
 
@@ -58,44 +57,45 @@ export class VirtualKeyboardContext {
   }
 
   init(): void {
-    this.manager = getActiveWindow()?.VirtualKeyboardManager;
     this.compact = localStorage.getItem("bk.enabled_compact") !== "false";
     this.disabled = localStorage.getItem("bk.disabled_vk") === "true";
   }
 
   replaceShowKeyboard(): void {
-    if (!this.manager) {
+    let manager = getActiveWindow()?.VirtualKeyboardManager;
+    if (!manager) {
       console.error("[VirtualKeyboard] VirtualKeyboardManager not found!");
       return;
     }
 
     console.log("[VirtualKeyboard] ReplaceShowKeyboard");
 
-    if (!this.manager.SetVirtualKeyboardVisible_) {
-      this.manager.SetVirtualKeyboardVisible_ = this.manager.SetVirtualKeyboardVisible;
-      this.manager.SetVirtualKeyboardVisible = this.setKeyboardVisibleReplace();
+    if (!manager.SetVirtualKeyboardVisible_) {
+      manager.SetVirtualKeyboardVisible_ = manager.SetVirtualKeyboardVisible;
+      manager.SetVirtualKeyboardVisible = this.setKeyboardVisibleReplace(manager);
     }
-    if (!this.manager.SetVirtualKeyboardHidden_) {
-      this.manager.SetVirtualKeyboardHidden_ = this.manager.SetVirtualKeyboardHidden;
-      this.manager.SetVirtualKeyboardHidden = this.setKeyboardHiddenReplace();
+    if (!manager.SetVirtualKeyboardHidden_) {
+      manager.SetVirtualKeyboardHidden_ = manager.SetVirtualKeyboardHidden;
+      manager.SetVirtualKeyboardHidden = this.setKeyboardHiddenReplace(manager);
     }
   }
 
   restoreShowKeyboard(): void {
-    if (!this.manager) {
+    let manager = getActiveWindow()?.VirtualKeyboardManager;
+    if (!manager) {
       console.error("[VirtualKeyboard] VirtualKeyboardManager not found!");
       return;
     }
 
     console.log("[VirtualKeyboard] RestoreShowKeyboard");
 
-    if (this.manager.SetVirtualKeyboardVisible_) {
-      this.manager.SetVirtualKeyboardVisible = this.manager.SetVirtualKeyboardVisible_;
-      this.manager.SetVirtualKeyboardVisible_ = undefined;
+    if (manager.SetVirtualKeyboardVisible_) {
+      manager.SetVirtualKeyboardVisible = manager.SetVirtualKeyboardVisible_;
+      manager.SetVirtualKeyboardVisible_ = undefined;
     }
-    if (this.manager.SetVirtualKeyboardHidden_) {
-      this.manager.SetVirtualKeyboardHidden = this.manager.SetVirtualKeyboardHidden_;
-      this.manager.SetVirtualKeyboardHidden_ = undefined;
+    if (manager.SetVirtualKeyboardHidden_) {
+      manager.SetVirtualKeyboardHidden = manager.SetVirtualKeyboardHidden_;
+      manager.SetVirtualKeyboardHidden_ = undefined;
     }
   }
 }
