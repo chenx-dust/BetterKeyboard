@@ -157,4 +157,3 @@ class Plugin:
                 logger.debug("Ungrabbed keyboard: %s", dev.name)
             except:
                 logger.error(f"Failed to ungrab keyboard: {dev.name}")
-        self.kb_devs.clear()
