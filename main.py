@@ -11,26 +11,36 @@ from decky import logger
 from settings import SettingsManager
 
 
+CONFIG_VERSION = 1
+
 class Plugin:
     last_devs: Set[str]
     kb_devs: List[evdev_mod.InputDevice]
     grabbing: bool
 
-    async def _main(self):
+    def __init__(self):
         self.settings = SettingsManager(
             name="config", settings_directory=decky.DECKY_PLUGIN_SETTINGS_DIR
         )
-        if self.settings.getSetting("debug"):
+
+    async def _migration(self):
+        if self.settings.getSetting("version", 0) < CONFIG_VERSION:
+            logger.info("Migrating config")
+            self.settings.setSetting("blacklist", [
+                "Valve Software Steam Controller",  # Steam Deck
+                "Valve Software Steam Deck Controller",  # Steam Deck OLED
+                "steamos-manager",
+            ])
+            self.settings.setSetting("version", CONFIG_VERSION)
+
+    async def _main(self):
+        if self.settings.getSetting("debug", False):
             logger.setLevel("DEBUG")
+        else:
+            self.settings.setSetting("debug", False)
+        self.settings.setSetting("version", CONFIG_VERSION)
         self.blacklist = self.settings.getSetting("blacklist")
-        logger.debug(f"Blacklist: {self.blacklist}")
-        if not self.blacklist:
-            self.blacklist = [
-                "Valve Software Steam Controller",      # Steam Deck
-                "Valve Software Steam Deck Controller", # Steam Deck OLED
-                "STEAMOS_POWER_BUTTON=1",
-            ]
-            self.settings.setSetting("blacklist", self.blacklist)
+        logger.info(f"Blacklist: {self.blacklist}")
         self.last_devs = set()
         self.kb_devs = []
         self.grabbing = False
